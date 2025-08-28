@@ -100,7 +100,7 @@ body {
   color: #555;
 }
 
-.input-group input {
+.input-group input, .input-group select {
   padding: 12px;
   border: 1px solid #ddd;
   border-radius: 5px;
@@ -108,7 +108,7 @@ body {
   transition: border 0.3s ease;
 }
 
-.input-group input:focus {
+.input-group input:focus, .input-group select:focus {
   outline: none;
   border-color: #4b6cb7;
   box-shadow: 0 0 0 2px rgba(75, 108, 183, 0.2);
@@ -125,7 +125,7 @@ body {
 
 .teacher-input {
   display: grid;
-  grid-template-columns: 1fr 1fr auto;
+  grid-template-columns: 1fr 1fr 1fr auto;
   gap: 15px;
   align-items: end;
   margin-bottom: 20px;
@@ -139,56 +139,100 @@ body {
   border-radius: 5px;
   cursor: pointer;
   transition: background 0.3s ease;
+  white-space: nowrap;
 }
 
 .add-teacher-btn:hover {
   background: #218838;
 }
 
-.teachers-list ul {
-  list-style: none;
+.teacher-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
 }
 
-.teachers-list li {
+.teacher-card {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 5px;
+  border-left: 4px solid #4b6cb7;
+}
+
+.teacher-card h4 {
+  color: #4b6cb7;
+  margin-bottom: 10px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #ddd;
+}
+
+.subject-assignment {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px;
-  background: #f8f9fa;
+  padding: 8px;
+  background: white;
   margin-bottom: 8px;
-  border-radius: 5px;
+  border-radius: 4px;
+  border: 1px solid #eee;
 }
 
-.teachers-list li button {
+.remove-subject-btn {
+  background: #ff6b6b;
+  color: white;
+  border: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.remove-subject-btn:hover {
+  background: #fa5252;
+}
+
+.remove-teacher-btn {
   background: #dc3545;
   color: white;
   border: none;
-  padding: 5px 10px;
-  border-radius: 3px;
+  padding: 8px 12px;
+  border-radius: 4px;
   cursor: pointer;
+  margin-top: 10px;
+  width: 100%;
 }
 
-.teachers-list li button:hover {
+.remove-teacher-btn:hover {
   background: #c82333;
+}
+
+.semester-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
 }
 
 .semester-card {
   background: #f8f9fa;
   padding: 15px;
   border-radius: 5px;
-  margin-bottom: 15px;
   border-left: 4px solid #4b6cb7;
 }
 
 .semester-card h3 {
   color: #4b6cb7;
   margin-bottom: 10px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #ddd;
 }
 
 .subjects-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
 }
 
 .subject-tag {
@@ -298,6 +342,10 @@ tr:hover {
   }
   
   .teacher-input {
+    grid-template-columns: 1fr;
+  }
+  
+  .teacher-cards, .semester-cards {
     grid-template-columns: 1fr;
   }
   
