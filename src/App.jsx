@@ -14,9 +14,53 @@ function App() {
         { name: "Operating System", semester: "3rd Semester" },
         { name: "Networking", semester: "5th Semester" }
       ] 
+    },
+    { 
+      id: 2, 
+      name: "Prof. Gupta", 
+      subjects: [
+        { name: "Maths", semester: "1st Semester" },
+        { name: "DBMS", semester: "3rd Semester" }
+      ] 
+    },
+    { 
+      id: 3, 
+      name: "Dr. Singh", 
+      subjects: [
+        { name: "English", semester: "1st Semester" },
+        { name: "Indian Constitution", semester: "3rd Semester" },
+        { name: "AI", semester: "5th Semester" }
+      ] 
+    },
+    { 
+      id: 4, 
+      name: "Prof. Kumar", 
+      subjects: [
+        { name: "Entrepreneurship", semester: "1st Semester" },
+        { name: "Python", semester: "3rd Semester" },
+        { name: "Python", semester: "5th Semester" }
+      ] 
+    },
+    { 
+      id: 5, 
+      name: "Dr. Patel", 
+      subjects: [
+        { name: "History", semester: "1st Semester" },
+        { name: "Software", semester: "3rd Semester" },
+        { name: "Software", semester: "5th Semester" }
+      ] 
+    },
+    { 
+      id: 6, 
+      name: "Prof. Joshi", 
+      subjects: [
+        { name: "SEC", semester: "1st Semester" },
+        { name: "Feature Engineering", semester: "3rd Semester" },
+        { name: "Networking", semester: "5th Semester" }
+      ] 
     }
   ]);
-  const [semesters, setSemesters] = useState([
+  const [semesters] = useState([
     { 
       id: 1, 
       name: "1st Semester", 
@@ -33,14 +77,15 @@ function App() {
       subjects: ["AI", "Networking", "Software", "Python"] 
     }
   ]);
-  const [breakTime, setBreakTime] = useState({ start: "11:00", end: "11:30" });
-  const [labTimings, setLabTimings] = useState([
+  const [breakTime] = useState({ start: "11:00", end: "11:30" });
+  const [labTimings] = useState([
     { id: 1, start: "14:00", end: "16:00" },
     { id: 2, start: "15:00", end: "17:00" }
   ]);
-  const [routine, setRoutine] = useState(null);
+  const [routines, setRoutines] = useState({});
   const [activeTab, setActiveTab] = useState("config");
   const [newTeacher, setNewTeacher] = useState({ name: "", subject: "", semester: "" });
+  const [selectedSemester, setSelectedSemester] = useState("1st Semester");
 
   // Add a new teacher
   const addTeacher = () => {
@@ -88,88 +133,90 @@ function App() {
     setTeachers(updatedTeachers);
   };
 
-  // Generate routine function
-  const generateRoutine = () => {
+  // Generate routine for a specific semester
+  const generateSemesterRoutine = (semesterName) => {
     const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
     const timeSlots = [
       "9:00-10:00", "10:00-11:00", "11:00-11:30", "11:30-12:30", 
       "12:30-13:30", "14:00-16:00", "15:00-17:00"
     ];
     
-    const generatedRoutine = {};
+    const semesterRoutine = {};
+    const semester = semesters.find(s => s.name === semesterName);
     
     days.forEach(day => {
-      generatedRoutine[day] = {};
+      semesterRoutine[day] = {};
       timeSlots.forEach(slot => {
         if (slot === "11:00-11:30") {
-          generatedRoutine[day][slot] = { type: "break", description: "Break Time" };
+          semesterRoutine[day][slot] = { type: "break", description: "Break Time" };
         } else if (slot === "14:00-16:00" || slot === "15:00-17:00") {
           // Lab sessions
           const labNumber = slot === "14:00-16:00" ? 1 : 2;
-          let semester, subject;
+          let subject;
           
-          // Assign labs to different semesters on different days
-          if (day === "Monday" || day === "Wednesday") {
-            semester = "1st Semester";
+          if (semesterName === "1st Semester") {
             subject = "C Programming Lab";
-          } else if (day === "Tuesday") {
-            semester = "3rd Semester";
+          } else if (semesterName === "3rd Semester") {
             subject = "Python Lab";
           } else {
-            semester = "5th Semester";
             subject = "Networking Lab";
           }
           
           // Find teacher for this lab
           const labTeacher = teachers.find(t => 
-            t.subjects.some(s => s.name.includes(subject.split(' ')[0]))
+            t.subjects.some(s => s.name.includes(subject.split(' ')[0]) && s.semester === semesterName)
           )?.name || "Staff";
           
-          generatedRoutine[day][slot] = {
+          semesterRoutine[day][slot] = {
             type: "lab",
             lab: `Lab ${labNumber}`,
             subject: subject,
             teacher: labTeacher,
-            semester: semester
+            semester: semesterName
           };
         } else {
-          // Regular classes - assign based on day and time
+          // Regular classes
           const hour = parseInt(slot.split(':')[0]);
-          let semester, subjectIndex;
+          let subjectIndex;
           
           if (hour < 11) {
-            // Morning classes - 1st Semester
-            semester = "1st Semester";
-            subjectIndex = day.charCodeAt(0) % semesters.find(s => s.name === semester).subjects.length;
+            subjectIndex = (days.indexOf(day) * 2) % semester.subjects.length;
           } else if (hour < 13) {
-            // Late morning classes - 3rd Semester
-            semester = "3rd Semester";
-            subjectIndex = (day.charCodeAt(0) + 1) % semesters.find(s => s.name === semester).subjects.length;
+            subjectIndex = (days.indexOf(day) * 2 + 1) % semester.subjects.length;
           } else {
-            // Afternoon classes before labs - 5th Semester
-            semester = "5th Semester";
-            subjectIndex = (day.charCodeAt(0) + 2) % semesters.find(s => s.name === semester).subjects.length;
+            subjectIndex = (days.indexOf(day) * 2 + 2) % semester.subjects.length;
           }
           
-          const subject = semesters.find(s => s.name === semester)?.subjects[subjectIndex] || "Subject";
+          const subject = semester.subjects[subjectIndex];
           
           // Find teacher for this subject and semester
           const classTeacher = teachers.find(t => 
-            t.subjects.some(s => s.name === subject && s.semester === semester)
+            t.subjects.some(s => s.name === subject && s.semester === semesterName)
           )?.name || "Staff";
           
-          generatedRoutine[day][slot] = {
+          semesterRoutine[day][slot] = {
             type: "class",
-            classroom: `Room ${(day.charCodeAt(0) % classrooms) + 1}`,
+            classroom: `Room ${(days.indexOf(day) % classrooms) + 1}`,
             subject: subject,
             teacher: classTeacher,
-            semester: semester
+            semester: semesterName
           };
         }
       });
     });
     
-    setRoutine(generatedRoutine);
+    return semesterRoutine;
+  };
+
+  // Generate all routines
+  const generateRoutines = () => {
+    const allRoutines = {};
+    
+    semesters.forEach(semester => {
+      allRoutines[semester.name] = generateSemesterRoutine(semester.name);
+    });
+    
+    setRoutines(allRoutines);
     setActiveTab("routine");
   };
 
@@ -190,7 +237,7 @@ function App() {
         <button 
           className={activeTab === "routine" ? "active" : ""} 
           onClick={() => setActiveTab("routine")}
-          disabled={!routine}
+          disabled={Object.keys(routines).length === 0}
         >
           Generated Routine
         </button>
@@ -229,7 +276,7 @@ function App() {
                 <input 
                   type="time" 
                   value={breakTime.start} 
-                  onChange={(e) => setBreakTime({...breakTime, start: e.target.value})}
+                  readOnly
                 />
               </div>
               <div className="input-group">
@@ -237,7 +284,7 @@ function App() {
                 <input 
                   type="time" 
                   value={breakTime.end} 
-                  onChange={(e) => setBreakTime({...breakTime, end: e.target.value})}
+                  readOnly
                 />
               </div>
             </div>
@@ -252,11 +299,7 @@ function App() {
                   <input 
                     type="time" 
                     value={timing.start} 
-                    onChange={(e) => {
-                      const newTimings = [...labTimings];
-                      newTimings[index].start = e.target.value;
-                      setLabTimings(newTimings);
-                    }}
+                    readOnly
                   />
                 </div>
                 <div className="input-group">
@@ -264,11 +307,7 @@ function App() {
                   <input 
                     type="time" 
                     value={timing.end} 
-                    onChange={(e) => {
-                      const newTimings = [...labTimings];
-                      newTimings[index].end = e.target.value;
-                      setLabTimings(newTimings);
-                    }}
+                    readOnly
                   />
                 </div>
               </div>
@@ -362,18 +401,32 @@ function App() {
             </div>
           </div>
 
-          <button className="generate-btn" onClick={generateRoutine}>
-            Generate Routine
+          <button className="generate-btn" onClick={generateRoutines}>
+            Generate All Routines
           </button>
         </div>
       ) : (
         <div className="routine-view">
-          <h2>Weekly Class Routine - Computer Science Department</h2>
-          {routine && (
+          <h2>Weekly Class Routines - Computer Science Department</h2>
+          
+          <div className="semester-selector">
+            <label>Select Semester: </label>
+            <select 
+              value={selectedSemester} 
+              onChange={(e) => setSelectedSemester(e.target.value)}
+            >
+              {semesters.map(sem => (
+                <option key={sem.id} value={sem.name}>{sem.name}</option>
+              ))}
+            </select>
+          </div>
+          
+          {routines[selectedSemester] && (
             <div className="routine-table">
-              {Object.entries(routine).map(([day, schedule]) => (
+              <h3>{selectedSemester} Routine</h3>
+              {Object.entries(routines[selectedSemester]).map(([day, schedule]) => (
                 <div key={day} className="day-schedule">
-                  <h3>{day}</h3>
+                  <h4>{day}</h4>
                   <table>
                     <thead>
                       <tr>
@@ -382,7 +435,6 @@ function App() {
                         <th>Room/Lab</th>
                         <th>Subject</th>
                         <th>Teacher</th>
-                        <th>Semester</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -393,7 +445,6 @@ function App() {
                           <td>{detail.type === "break" ? "-" : detail.classroom || detail.lab}</td>
                           <td>{detail.type === "break" ? "Break Time" : detail.subject}</td>
                           <td>{detail.type === "break" ? "-" : detail.teacher}</td>
-                          <td>{detail.type === "break" ? "-" : detail.semester}</td>
                         </tr>
                       ))}
                     </tbody>

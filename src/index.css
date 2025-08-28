@@ -273,11 +273,29 @@ body {
   color: #4b6cb7;
 }
 
+.semester-selector {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 10px;
+}
+
+.semester-selector label {
+  font-weight: 500;
+}
+
+.semester-selector select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
 .day-schedule {
   margin-bottom: 40px;
 }
 
-.day-schedule h3 {
+.day-schedule h4 {
   background: #4b6cb7;
   color: white;
   padding: 10px 15px;
