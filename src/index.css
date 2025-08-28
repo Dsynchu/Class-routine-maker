@@ -1,0 +1,308 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f5f7fa;
+  color: #333;
+  line-height: 1.6;
+}
+
+.App {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.app-header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+  color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.app-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+}
+
+.app-header p {
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
+
+.tabs {
+  display: flex;
+  margin-bottom: 30px;
+  border-bottom: 1px solid #ddd;
+}
+
+.tabs button {
+  padding: 12px 24px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #666;
+  transition: all 0.3s ease;
+}
+
+.tabs button:hover {
+  color: #4b6cb7;
+}
+
+.tabs button.active {
+  color: #4b6cb7;
+  border-bottom: 3px solid #4b6cb7;
+}
+
+.tabs button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.configuration {
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.input-section {
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.input-section h2 {
+  margin-bottom: 20px;
+  color: #4b6cb7;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.input-group {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+.input-group label {
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: #555;
+}
+
+.input-group input {
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 1rem;
+  transition: border 0.3s ease;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: #4b6cb7;
+  box-shadow: 0 0 0 2px rgba(75, 108, 183, 0.2);
+}
+
+.time-input-group {
+  display: flex;
+  gap: 20px;
+}
+
+.time-input-group .input-group {
+  flex: 1;
+}
+
+.teacher-input {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 15px;
+  align-items: end;
+  margin-bottom: 20px;
+}
+
+.add-teacher-btn {
+  padding: 12px;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.add-teacher-btn:hover {
+  background: #218838;
+}
+
+.teachers-list ul {
+  list-style: none;
+}
+
+.teachers-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background: #f8f9fa;
+  margin-bottom: 8px;
+  border-radius: 5px;
+}
+
+.teachers-list li button {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.teachers-list li button:hover {
+  background: #c82333;
+}
+
+.semester-card {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  border-left: 4px solid #4b6cb7;
+}
+
+.semester-card h3 {
+  color: #4b6cb7;
+  margin-bottom: 10px;
+}
+
+.subjects-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.subject-tag {
+  background: #e9ecef;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+}
+
+.generate-btn {
+  background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  font-size: 1.1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  display: block;
+  margin: 30px auto 0;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.generate-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.routine-view {
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.routine-view h2 {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #4b6cb7;
+}
+
+.day-schedule {
+  margin-bottom: 40px;
+}
+
+.day-schedule h3 {
+  background: #4b6cb7;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 5px 5px 0 0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
+}
+
+th, td {
+  padding: 12px 15px;
+  text-align: left;
+  border: 1px solid #ddd;
+}
+
+th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+}
+
+tr.class {
+  background-color: #e3f2fd;
+}
+
+tr.lab {
+  background-color: #e8f5e9;
+}
+
+tr.break {
+  background-color: #fff3e0;
+}
+
+tr:hover {
+  background-color: #f1f3f5;
+}
+
+@media (max-width: 768px) {
+  .App {
+    padding: 10px;
+  }
+  
+  .app-header h1 {
+    font-size: 2rem;
+  }
+  
+  .tabs button {
+    padding: 10px 15px;
+    font-size: 0.9rem;
+  }
+  
+  .configuration, .routine-view {
+    padding: 20px;
+  }
+  
+  .time-input-group {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .teacher-input {
+    grid-template-columns: 1fr;
+  }
+  
+  table {
+    display: block;
+    overflow-x: auto;
+  }
+}
