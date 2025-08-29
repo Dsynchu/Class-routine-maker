@@ -3,8 +3,8 @@ import './App.css';
 
 function App() {
   // State management
-  const [classrooms, setClassrooms] = useState(3);
-  const [labs, setLabs] = useState(2);
+  const [classrooms, setClassrooms] = useState(2); // Changed to 2 as per your requirement
+  const [labs, setLabs] = useState(1); // Changed to 1 as per your requirement
   const [teachers, setTeachers] = useState([
     { 
       id: 1, 
@@ -79,8 +79,7 @@ function App() {
   ]);
   const [breakTime] = useState({ start: "11:00", end: "11:30" });
   const [labTimings] = useState([
-    { id: 1, start: "14:00", end: "16:00" },
-    { id: 2, start: "15:00", end: "17:00" }
+    { id: 1, start: "14:00", end: "16:00" }
   ]);
   const [routines, setRoutines] = useState({});
   const [activeTab, setActiveTab] = useState("config");
@@ -90,11 +89,9 @@ function App() {
   // Add a new teacher
   const addTeacher = () => {
     if (newTeacher.name && newTeacher.subject && newTeacher.semester) {
-      // Check if teacher already exists
       const existingTeacherIndex = teachers.findIndex(t => t.name === newTeacher.name);
       
       if (existingTeacherIndex >= 0) {
-        // Add subject to existing teacher
         const updatedTeachers = [...teachers];
         updatedTeachers[existingTeacherIndex].subjects.push({
           name: newTeacher.subject,
@@ -102,7 +99,6 @@ function App() {
         });
         setTeachers(updatedTeachers);
       } else {
-        // Create new teacher
         setTeachers([...teachers, { 
           id: teachers.length + 1, 
           name: newTeacher.name, 
@@ -138,7 +134,7 @@ function App() {
     const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
     const timeSlots = [
       "9:00-10:00", "10:00-11:00", "11:00-11:30", "11:30-12:30", 
-      "12:30-13:30", "14:00-16:00", "15:00-17:00"
+      "12:30-13:30", "14:00-16:00"
     ];
     
     const allRoutines = {};
@@ -162,7 +158,17 @@ function App() {
           }, {});
           return acc;
         }, {})
-      }))
+      })),
+      teachers: teachers.reduce((acc, teacher) => {
+        acc[teacher.name] = days.reduce((dayAcc, day) => {
+          dayAcc[day] = timeSlots.reduce((timeAcc, time) => {
+            timeAcc[time] = true;
+            return timeAcc;
+          }, {});
+          return dayAcc;
+        }, {});
+        return acc;
+      }, {})
     };
 
     // Generate routine for each semester
@@ -175,9 +181,8 @@ function App() {
         timeSlots.forEach(slot => {
           if (slot === "11:00-11:30") {
             semesterRoutine[day][slot] = { type: "break", description: "Break Time" };
-          } else if (slot === "14:00-16:00" || slot === "15:00-17:00") {
+          } else if (slot === "14:00-16:00") {
             // Lab sessions
-            const labNumber = slot === "14:00-16:00" ? 1 : 2;
             let subject;
             
             if (semester.name === "1st Semester") {
@@ -194,21 +199,30 @@ function App() {
             );
             
             if (availableLab) {
-              // Mark lab as occupied
-              availableLab.availability[day][slot] = false;
-              
               // Find teacher for this lab
               const labTeacher = teachers.find(t => 
                 t.subjects.some(s => s.name.includes(subject.split(' ')[0]) && s.semester === semester.name)
               )?.name || "Staff";
               
-              semesterRoutine[day][slot] = {
-                type: "lab",
-                lab: `Lab ${availableLab.id}`,
-                subject: subject,
-                teacher: labTeacher,
-                semester: semester.name
-              };
+              // Check if teacher is available
+              if (labTeacher !== "Staff" && resourceAllocation.teachers[labTeacher][day][slot]) {
+                // Mark lab and teacher as occupied
+                availableLab.availability[day][slot] = false;
+                resourceAllocation.teachers[labTeacher][day][slot] = false;
+                
+                semesterRoutine[day][slot] = {
+                  type: "lab",
+                  lab: `Lab ${availableLab.id}`,
+                  subject: subject,
+                  teacher: labTeacher,
+                  semester: semester.name
+                };
+              } else {
+                semesterRoutine[day][slot] = {
+                  type: "free",
+                  description: "No teacher available"
+                };
+              }
             } else {
               semesterRoutine[day][slot] = {
                 type: "free",
@@ -220,12 +234,13 @@ function App() {
             const hour = parseInt(slot.split(':')[0]);
             let subjectIndex;
             
-            if (hour < 11) {
-              subjectIndex = (days.indexOf(day) * 2) % semester.subjects.length;
-            } else if (hour < 13) {
-              subjectIndex = (days.indexOf(day) * 2 + 1) % semester.subjects.length;
+            // For 1st and 3rd semesters, alternate one subject each day
+            if (semester.name === "1st Semester" || semester.name === "3rd Semester") {
+              // Use day index to alternate subjects (5 classes out of 6)
+              subjectIndex = (days.indexOf(day) + hour - 9) % (semester.subjects.length - 1);
             } else {
-              subjectIndex = (days.indexOf(day) * 2 + 2) % semester.subjects.length;
+              // 5th semester - all 4 subjects daily
+              subjectIndex = (days.indexOf(day) * 2 + hour - 9) % semester.subjects.length;
             }
             
             const subject = semester.subjects[subjectIndex];
@@ -236,21 +251,30 @@ function App() {
             );
             
             if (availableClassroom) {
-              // Mark classroom as occupied
-              availableClassroom.availability[day][slot] = false;
-              
               // Find teacher for this subject and semester
               const classTeacher = teachers.find(t => 
                 t.subjects.some(s => s.name === subject && s.semester === semester.name)
               )?.name || "Staff";
               
-              semesterRoutine[day][slot] = {
-                type: "class",
-                classroom: `Room ${availableClassroom.id}`,
-                subject: subject,
-                teacher: classTeacher,
-                semester: semester.name
-              };
+              // Check if teacher is available
+              if (classTeacher !== "Staff" && resourceAllocation.teachers[classTeacher][day][slot]) {
+                // Mark classroom and teacher as occupied
+                availableClassroom.availability[day][slot] = false;
+                resourceAllocation.teachers[classTeacher][day][slot] = false;
+                
+                semesterRoutine[day][slot] = {
+                  type: "class",
+                  classroom: `Room ${availableClassroom.id}`,
+                  subject: subject,
+                  teacher: classTeacher,
+                  semester: semester.name
+                };
+              } else {
+                semesterRoutine[day][slot] = {
+                  type: "free",
+                  description: "No teacher available"
+                };
+              }
             } else {
               semesterRoutine[day][slot] = {
                 type: "free",
