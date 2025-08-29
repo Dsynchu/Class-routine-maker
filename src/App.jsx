@@ -8,7 +8,7 @@ function App() {
   const [teachers, setTeachers] = useState([
     { 
       id: 1, 
-      name: "Dr. Sharma", 
+      name: "MD", 
       subjects: [
         { name: "C Programming", semester: "1st Semester" },
         { name: "Operating System", semester: "3rd Semester" },
@@ -17,7 +17,7 @@ function App() {
     },
     { 
       id: 2, 
-      name: "Prof. Gupta", 
+      name: "RP", 
       subjects: [
         { name: "Maths", semester: "1st Semester" },
         { name: "DBMS", semester: "3rd Semester" }
@@ -25,7 +25,7 @@ function App() {
     },
     { 
       id: 3, 
-      name: "Dr. Singh", 
+      name: "RB", 
       subjects: [
         { name: "English", semester: "1st Semester" },
         { name: "Indian Constitution", semester: "3rd Semester" },
@@ -34,7 +34,7 @@ function App() {
     },
     { 
       id: 4, 
-      name: "Prof. Kumar", 
+      name: "FZ", 
       subjects: [
         { name: "Entrepreneurship", semester: "1st Semester" },
         { name: "Python", semester: "3rd Semester" },
@@ -43,7 +43,7 @@ function App() {
     },
     { 
       id: 5, 
-      name: "Dr. Patel", 
+      name: "Maki", 
       subjects: [
         { name: "History", semester: "1st Semester" },
         { name: "Software", semester: "3rd Semester" },
@@ -52,7 +52,7 @@ function App() {
     },
     { 
       id: 6, 
-      name: "Prof. Joshi", 
+      name: "Other", 
       subjects: [
         { name: "SEC", semester: "1st Semester" },
         { name: "Feature Engineering", semester: "3rd Semester" },
@@ -133,87 +133,135 @@ function App() {
     setTeachers(updatedTeachers);
   };
 
-  // Generate routine for a specific semester
-  const generateSemesterRoutine = (semesterName) => {
+  // Generate routine for all semesters with proper resource allocation
+  const generateRoutines = () => {
     const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
     const timeSlots = [
       "9:00-10:00", "10:00-11:00", "11:00-11:30", "11:30-12:30", 
       "12:30-13:30", "14:00-16:00", "15:00-17:00"
     ];
     
-    const semesterRoutine = {};
-    const semester = semesters.find(s => s.name === semesterName);
-    
-    days.forEach(day => {
-      semesterRoutine[day] = {};
-      timeSlots.forEach(slot => {
-        if (slot === "11:00-11:30") {
-          semesterRoutine[day][slot] = { type: "break", description: "Break Time" };
-        } else if (slot === "14:00-16:00" || slot === "15:00-17:00") {
-          // Lab sessions
-          const labNumber = slot === "14:00-16:00" ? 1 : 2;
-          let subject;
-          
-          if (semesterName === "1st Semester") {
-            subject = "C Programming Lab";
-          } else if (semesterName === "3rd Semester") {
-            subject = "Python Lab";
-          } else {
-            subject = "Networking Lab";
-          }
-          
-          // Find teacher for this lab
-          const labTeacher = teachers.find(t => 
-            t.subjects.some(s => s.name.includes(subject.split(' ')[0]) && s.semester === semesterName)
-          )?.name || "Staff";
-          
-          semesterRoutine[day][slot] = {
-            type: "lab",
-            lab: `Lab ${labNumber}`,
-            subject: subject,
-            teacher: labTeacher,
-            semester: semesterName
-          };
-        } else {
-          // Regular classes
-          const hour = parseInt(slot.split(':')[0]);
-          let subjectIndex;
-          
-          if (hour < 11) {
-            subjectIndex = (days.indexOf(day) * 2) % semester.subjects.length;
-          } else if (hour < 13) {
-            subjectIndex = (days.indexOf(day) * 2 + 1) % semester.subjects.length;
-          } else {
-            subjectIndex = (days.indexOf(day) * 2 + 2) % semester.subjects.length;
-          }
-          
-          const subject = semester.subjects[subjectIndex];
-          
-          // Find teacher for this subject and semester
-          const classTeacher = teachers.find(t => 
-            t.subjects.some(s => s.name === subject && s.semester === semesterName)
-          )?.name || "Staff";
-          
-          semesterRoutine[day][slot] = {
-            type: "class",
-            classroom: `Room ${(days.indexOf(day) % classrooms) + 1}`,
-            subject: subject,
-            teacher: classTeacher,
-            semester: semesterName
-          };
-        }
-      });
-    });
-    
-    return semesterRoutine;
-  };
-
-  // Generate all routines
-  const generateRoutines = () => {
     const allRoutines = {};
-    
+    const resourceAllocation = {
+      classrooms: Array(classrooms).fill().map((_, i) => ({
+        id: i + 1,
+        availability: days.reduce((acc, day) => {
+          acc[day] = timeSlots.reduce((timeAcc, time) => {
+            timeAcc[time] = true;
+            return timeAcc;
+          }, {});
+          return acc;
+        }, {})
+      })),
+      labs: Array(labs).fill().map((_, i) => ({
+        id: i + 1,
+        availability: days.reduce((acc, day) => {
+          acc[day] = timeSlots.reduce((timeAcc, time) => {
+            timeAcc[time] = true;
+            return timeAcc;
+          }, {});
+          return acc;
+        }, {})
+      }))
+    };
+
+    // Generate routine for each semester
     semesters.forEach(semester => {
-      allRoutines[semester.name] = generateSemesterRoutine(semester.name);
+      const semesterRoutine = {};
+      
+      days.forEach(day => {
+        semesterRoutine[day] = {};
+        
+        timeSlots.forEach(slot => {
+          if (slot === "11:00-11:30") {
+            semesterRoutine[day][slot] = { type: "break", description: "Break Time" };
+          } else if (slot === "14:00-16:00" || slot === "15:00-17:00") {
+            // Lab sessions
+            const labNumber = slot === "14:00-16:00" ? 1 : 2;
+            let subject;
+            
+            if (semester.name === "1st Semester") {
+              subject = "C Programming Lab";
+            } else if (semester.name === "3rd Semester") {
+              subject = "Python Lab";
+            } else {
+              subject = "Networking Lab";
+            }
+            
+            // Find available lab
+            const availableLab = resourceAllocation.labs.find(lab => 
+              lab.availability[day][slot]
+            );
+            
+            if (availableLab) {
+              // Mark lab as occupied
+              availableLab.availability[day][slot] = false;
+              
+              // Find teacher for this lab
+              const labTeacher = teachers.find(t => 
+                t.subjects.some(s => s.name.includes(subject.split(' ')[0]) && s.semester === semester.name)
+              )?.name || "Staff";
+              
+              semesterRoutine[day][slot] = {
+                type: "lab",
+                lab: `Lab ${availableLab.id}`,
+                subject: subject,
+                teacher: labTeacher,
+                semester: semester.name
+              };
+            } else {
+              semesterRoutine[day][slot] = {
+                type: "free",
+                description: "No lab available"
+              };
+            }
+          } else {
+            // Regular classes
+            const hour = parseInt(slot.split(':')[0]);
+            let subjectIndex;
+            
+            if (hour < 11) {
+              subjectIndex = (days.indexOf(day) * 2) % semester.subjects.length;
+            } else if (hour < 13) {
+              subjectIndex = (days.indexOf(day) * 2 + 1) % semester.subjects.length;
+            } else {
+              subjectIndex = (days.indexOf(day) * 2 + 2) % semester.subjects.length;
+            }
+            
+            const subject = semester.subjects[subjectIndex];
+            
+            // Find available classroom
+            const availableClassroom = resourceAllocation.classrooms.find(
+              classroom => classroom.availability[day][slot]
+            );
+            
+            if (availableClassroom) {
+              // Mark classroom as occupied
+              availableClassroom.availability[day][slot] = false;
+              
+              // Find teacher for this subject and semester
+              const classTeacher = teachers.find(t => 
+                t.subjects.some(s => s.name === subject && s.semester === semester.name)
+              )?.name || "Staff";
+              
+              semesterRoutine[day][slot] = {
+                type: "class",
+                classroom: `Room ${availableClassroom.id}`,
+                subject: subject,
+                teacher: classTeacher,
+                semester: semester.name
+              };
+            } else {
+              semesterRoutine[day][slot] = {
+                type: "free",
+                description: "No classroom available"
+              };
+            }
+          }
+        });
+      });
+      
+      allRoutines[semester.name] = semesterRoutine;
     });
     
     setRoutines(allRoutines);
@@ -441,10 +489,10 @@ function App() {
                       {Object.entries(schedule).map(([time, detail]) => (
                         <tr key={time} className={detail.type}>
                           <td>{time}</td>
-                          <td>{detail.type === "break" ? "Break" : detail.type === "lab" ? "Lab" : "Class"}</td>
-                          <td>{detail.type === "break" ? "-" : detail.classroom || detail.lab}</td>
-                          <td>{detail.type === "break" ? "Break Time" : detail.subject}</td>
-                          <td>{detail.type === "break" ? "-" : detail.teacher}</td>
+                          <td>{detail.type === "break" ? "Break" : detail.type === "lab" ? "Lab" : detail.type === "free" ? "Free" : "Class"}</td>
+                          <td>{detail.type === "break" ? "-" : detail.classroom || detail.lab || "-"}</td>
+                          <td>{detail.type === "break" ? "Break Time" : detail.subject || detail.description}</td>
+                          <td>{detail.type === "break" || detail.type === "free" ? "-" : detail.teacher}</td>
                         </tr>
                       ))}
                     </tbody>
